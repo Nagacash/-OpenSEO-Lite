@@ -6,3 +6,14 @@ coverage/
 *.log
 .env*
 !.env.example
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+audit_report.json
+audit_report.md
+serp_report.json
+page_audit.json
+ai_visibility.json
+ai_visibility.md
