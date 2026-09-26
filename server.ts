@@ -1052,7 +1052,7 @@ async function performSiteAudit(
 }
 
 // ---------------------------------------------------------------------------
-// Skill 4: ai_visibility_check (demo mode — mirrors Python skill schema)
+// Skill 4: ai_visibility_check (demo fixtures or live SERP probes)
 // ---------------------------------------------------------------------------
 function normalizeDomain(domain: string): string {
   let raw = (domain || '').trim();
@@ -1069,11 +1069,112 @@ function normalizeDomain(domain: string): string {
   }
 }
 
-function performAiVisibilityCheck(
+function brandMentioned(text: string, brand: string): boolean {
+  if (!text || !brand) return false;
+  const escaped = brand.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`\\b${escaped}\\b`, 'i').test(text);
+}
+
+function domainCited(text: string, urls: string[], domain: string): string | null {
+  for (const item of [text, ...urls]) {
+    if (!item) continue;
+    if (domain && item.toLowerCase().includes(domain.toLowerCase())) {
+      return item.startsWith('http') ? item : `https://${domain}`;
+    }
+  }
+  return null;
+}
+
+function buildVisibilitySummary(
   brand: string,
   domain: string,
-  queries?: string[]
-): AiVisibilityResult {
+  score: number,
+  results: AiVisibilityResult['results'],
+  mode: 'demo' | 'live'
+): string {
+  const mentions = results.filter((r) => r.mentioned).length;
+  const citations = results.filter((r) => r.cited_url).length;
+  const modeNote =
+    mode === 'demo'
+      ? 'demo fixtures — not live engine data'
+      : 'live Google/DuckDuckGo SERP probe — AI Overview proxy, not a private LLM crawl';
+
+  return [
+    `AI visibility for ${brand} (${domain}) scored ${score}/100 (${modeNote}).`,
+    `Evidence: ${mentions}/${results.length} checks mentioned the brand; ${citations}/${results.length} cited the domain.`,
+    '',
+    'Prioritized Actions:',
+    `1. Publish a clear 'What is ${brand}?' page that LLMs can cite.`,
+    `2. Earn third-party mentions that include a link to ${domain}.`,
+    `3. Add FAQ + Organization JSON-LD so answer engines can attribute ${brand} accurately.`,
+  ].join('\n');
+}
+
+async function liveVisibilityProbe(
+  brand: string,
+  domain: string,
+  queries: string[]
+): Promise<AiVisibilityResult['results']> {
+  const out: AiVisibilityResult['results'] = [];
+
+  // Bound concurrency like the Python skill (2 at a time)
+  for (let i = 0; i < queries.length; i += 2) {
+    const batch = queries.slice(i, i + 2);
+    const batchResults = await Promise.all(
+      batch.map(async (query) => {
+        try {
+          const data = await performSerpSearch(query, 'us');
+          const organic = (data.results || []).slice(0, 5);
+          const blob = organic.map((r) => `${r.title} ${r.snippet} ${r.url}`).join(' ');
+          const urls = organic.map((r) => r.url);
+          const mentioned = brandMentioned(blob, brand);
+          const cited = domainCited(blob, urls, domain);
+          const competitors: string[] = [];
+          for (const r of organic) {
+            try {
+              let host = new URL(r.url).hostname.toLowerCase();
+              if (host.startsWith('www.')) host = host.slice(4);
+              if (host && host !== domain && !competitors.includes(host)) {
+                competitors.push(host);
+              }
+            } catch {
+              /* ignore */
+            }
+          }
+          return {
+            query,
+            engine: 'google_serp',
+            mentioned,
+            cited_url: cited,
+            snippet: organic[0]?.snippet || blob.slice(0, 240),
+            competitors_mentioned: competitors.slice(0, 5),
+            status: organic.length ? 'ok' : 'empty',
+          };
+        } catch (err: any) {
+          return {
+            query,
+            engine: 'google_serp',
+            mentioned: false,
+            cited_url: null,
+            snippet: '',
+            competitors_mentioned: [],
+            status: 'error',
+          };
+        }
+      })
+    );
+    out.push(...batchResults);
+  }
+
+  return out;
+}
+
+async function performAiVisibilityCheck(
+  brand: string,
+  domain: string,
+  queries?: string[],
+  live: boolean = false
+): Promise<AiVisibilityResult> {
   const brandClean = (brand || '').trim();
   const domainClean = normalizeDomain(domain);
 
@@ -1125,21 +1226,47 @@ function performAiVisibilityCheck(
           `${brandClean} review`,
         ];
 
-  const results = builtQueries.map((query, i) => {
-    const mentioned = i % 2 === 0 || query.toLowerCase().includes(brandClean.toLowerCase());
-    const cited = i % 3 === 0;
-    return {
-      query,
-      engine: 'demo_fixture',
-      mentioned,
-      cited_url: cited ? `https://${domainClean}/` : null,
-      snippet: mentioned
-        ? `Demo: ${brandClean} appears in synthetic AI answer for '${query}'.`
-        : `Demo: AI answer for '${query}' featured alternatives instead of ${brandClean}.`,
-      competitors_mentioned: mentioned ? [] : ['CompetitorA', 'CompetitorB'],
-      status: 'demo',
-    };
-  });
+  let mode: 'demo' | 'live' = live ? 'live' : 'demo';
+  let results: AiVisibilityResult['results'];
+
+  if (live) {
+    results = await liveVisibilityProbe(brandClean, domainClean, builtQueries);
+    if (results.length && results.every((r) => r.status === 'error' || r.status === 'empty')) {
+      // Soft fall back so agents still get a schema-shaped payload
+      mode = 'demo';
+      results = builtQueries.map((query, i) => {
+        const mentioned = i % 2 === 0 || query.toLowerCase().includes(brandClean.toLowerCase());
+        const cited = i % 3 === 0;
+        return {
+          query,
+          engine: 'demo_fixture',
+          mentioned,
+          cited_url: cited ? `https://${domainClean}/` : null,
+          snippet: mentioned
+            ? `Demo fallback: live SERP returned empty for '${query}'.`
+            : `Demo fallback: live SERP returned empty; synthetic miss for '${query}'.`,
+          competitors_mentioned: mentioned ? [] : ['CompetitorA', 'CompetitorB'],
+          status: 'demo',
+        };
+      });
+    }
+  } else {
+    results = builtQueries.map((query, i) => {
+      const mentioned = i % 2 === 0 || query.toLowerCase().includes(brandClean.toLowerCase());
+      const cited = i % 3 === 0;
+      return {
+        query,
+        engine: 'demo_fixture',
+        mentioned,
+        cited_url: cited ? `https://${domainClean}/` : null,
+        snippet: mentioned
+          ? `Demo: ${brandClean} appears in synthetic AI answer for '${query}'.`
+          : `Demo: AI answer for '${query}' featured alternatives instead of ${brandClean}.`,
+        competitors_mentioned: mentioned ? [] : ['CompetitorA', 'CompetitorB'],
+        status: 'demo',
+      };
+    });
+  }
 
   const total = results.length || 1;
   const mentions = results.filter((r) => r.mentioned).length;
@@ -1162,20 +1289,15 @@ function performAiVisibilityCheck(
     queries: builtQueries,
     results,
     visibility_score: score,
-    ai_summary: [
-      `AI visibility for ${brandClean} (${domainClean}) scored ${score}/100 (demo fixtures — not live engine data).`,
-      `Evidence: ${mentions}/${results.length} checks mentioned the brand; ${citations}/${results.length} cited the domain.`,
-      '',
-      'Prioritized Actions:',
-      `1. Publish a clear 'What is ${brandClean}?' page that LLMs can cite.`,
-      `2. Earn third-party mentions that include a link to ${domainClean}.`,
-      `3. Add FAQ + Organization JSON-LD so answer engines can attribute ${brandClean} accurately.`,
-    ].join('\n'),
-    mode: 'demo',
+    ai_summary: buildVisibilitySummary(brandClean, domainClean, score, results, mode),
+    mode,
     scoring: {
       formula: '40% mentions + 40% citations + 20% query breadth',
-      estimated: true,
-      note: 'Demo fixtures for schema/agent testing.',
+      estimated: mode !== 'live',
+      note:
+        mode === 'demo'
+          ? 'Demo fixtures for schema/agent testing.'
+          : 'Phase-1 live check uses Google/DuckDuckGo SERP organic presence as an AI Overview / answer proxy.',
     },
   };
 }
@@ -1268,15 +1390,16 @@ app.post('/api/skills/site_audit', async (req: Request, res: Response) => {
 });
 
 app.post('/api/skills/ai_visibility_check', async (req: Request, res: Response) => {
-  const { brand, domain, queries } = req.body;
+  const { brand, domain, queries, live } = req.body;
   if (!brand || typeof brand !== 'string' || !domain || typeof domain !== 'string') {
     res.status(400).json({ error: 'brand and domain strings are required' });
     return;
   }
-  const result = performAiVisibilityCheck(
+  const result = await performAiVisibilityCheck(
     brand,
     domain,
-    Array.isArray(queries) ? queries : undefined
+    Array.isArray(queries) ? queries : undefined,
+    Boolean(live)
   );
   res.json(result);
 });
@@ -1351,7 +1474,7 @@ app.post('/api/mcp/jsonrpc', async (req: Request, res: Response) => {
           {
             name: 'ai_visibility_check',
             description:
-              'Check whether AI/SERP surfaces mention and cite a brand+domain. Returns visibility_score and per-query evidence.',
+              'Check whether AI/SERP surfaces mention and cite a brand+domain. Demo fixtures by default; set live=true to probe Google/DuckDuckGo SERP.',
             inputSchema: {
               type: 'object',
               properties: {
@@ -1361,6 +1484,10 @@ app.post('/api/mcp/jsonrpc', async (req: Request, res: Response) => {
                   type: 'array',
                   items: { type: 'string' },
                   description: 'Optional custom prompts',
+                },
+                live: {
+                  type: 'boolean',
+                  description: 'If true, probe live SERP; otherwise return labeled demo fixtures',
                 },
               },
               required: ['brand', 'domain'],
@@ -1385,7 +1512,12 @@ app.post('/api/mcp/jsonrpc', async (req: Request, res: Response) => {
       } else if (toolName === 'site_audit') {
         toolResult = await performSiteAudit(args.url || '');
       } else if (toolName === 'ai_visibility_check') {
-        toolResult = performAiVisibilityCheck(args.brand || '', args.domain || '', args.queries);
+        toolResult = await performAiVisibilityCheck(
+          args.brand || '',
+          args.domain || '',
+          args.queries,
+          Boolean(args.live)
+        );
       } else {
         res.status(404).json({
           jsonrpc: '2.0',

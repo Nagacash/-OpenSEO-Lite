@@ -65,6 +65,7 @@ export default function App() {
   const [auditUrl, setAuditUrl] = useState('https://news.ycombinator.com');
   const [visibilityBrand, setVisibilityBrand] = useState('OpenSEO-Lite');
   const [visibilityDomain, setVisibilityDomain] = useState('nagacodex.cloud');
+  const [visibilityLive, setVisibilityLive] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -240,7 +241,7 @@ export default function App() {
       const res = await fetch('/api/skills/ai_visibility_check', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ brand, domain }),
+        body: JSON.stringify({ brand, domain, live: visibilityLive }),
       });
       const data = await parseApiJson(res);
       if (!res.ok) throw new Error(data.error || 'Failed to check AI visibility');
@@ -1197,7 +1198,7 @@ export default function App() {
                 <div className="space-y-6">
                   <div>
                     <div className="flex items-center gap-2 text-xs font-semibold text-amber-400 uppercase tracking-wider">
-                      <span>Live Demo</span>
+                      <span>{visibilityLive ? 'Live SERP' : 'Demo'}</span>
                       <span>·</span>
                       <span>Skill: ai_visibility_check</span>
                     </div>
@@ -1205,7 +1206,7 @@ export default function App() {
                       Check brand visibility in AI answers
                     </h3>
                     <p className="text-xs text-slate-400 mt-1">
-                      Demo mode returns labeled fixtures so agents can practice the schema. Use the Python CLI with <code className="text-amber-300">--live</code> for SERP probes.
+                      Demo uses labeled fixtures. Live mode probes Google/DuckDuckGo SERP as a Phase-1 proxy for AI Overview / answer surfaces — not a private crawl of ChatGPT or Gemini.
                     </p>
                   </div>
 
@@ -1226,6 +1227,21 @@ export default function App() {
                     />
                   </div>
 
+                  <label className="flex items-start gap-3 p-3.5 rounded-xl border border-white/[0.08] bg-white/[0.02] cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={visibilityLive}
+                      onChange={(e) => setVisibilityLive(e.target.checked)}
+                      className="mt-0.5 rounded border-white/20 bg-[#0C0E12] text-amber-400 focus:ring-amber-400/40"
+                    />
+                    <span>
+                      <span className="block text-sm font-semibold text-white">Live SERP probe</span>
+                      <span className="block text-[12px] text-slate-400 mt-0.5 leading-relaxed">
+                        Check whether organic results mention the brand and cite the domain. Takes longer; may fall back to demo if engines block the request.
+                      </span>
+                    </span>
+                  </label>
+
                   <button
                     onClick={handleRunAiVisibility}
                     disabled={loading || !visibilityBrand.trim() || !visibilityDomain.trim()}
@@ -1234,12 +1250,12 @@ export default function App() {
                     {loading ? (
                       <>
                         <RefreshCw className="w-4 h-4 animate-spin" />
-                        <span>Checking...</span>
+                        <span>{visibilityLive ? 'Probing SERP...' : 'Checking...'}</span>
                       </>
                     ) : (
                       <>
                         <Radar className="w-4 h-4" />
-                        <span>Run AI Visibility Check</span>
+                        <span>{visibilityLive ? 'Run Live Visibility Check' : 'Run Demo Visibility Check'}</span>
                       </>
                     )}
                   </button>
@@ -1256,8 +1272,24 @@ export default function App() {
                             <span className="text-slate-500 text-base font-semibold">/ 100</span>
                           </div>
                           <p className="text-[11px] text-slate-400 mt-2 uppercase tracking-wider">
-                            Mode: {visibilityResult.mode}
+                            Mode:{' '}
+                            <span
+                              className={
+                                visibilityResult.mode === 'live'
+                                  ? 'text-emerald-400'
+                                  : visibilityResult.mode === 'demo'
+                                  ? 'text-amber-400'
+                                  : 'text-rose-400'
+                              }
+                            >
+                              {visibilityResult.mode}
+                            </span>
                           </p>
+                          {visibilityResult.scoring?.note && (
+                            <p className="text-[11px] text-slate-500 mt-2 normal-case tracking-normal leading-relaxed">
+                              {visibilityResult.scoring.note}
+                            </p>
+                          )}
                         </div>
                         <div className="sm:col-span-2 p-5 rounded-2xl bg-amber-400/[0.03] border border-amber-400/20">
                           <span className="text-xs font-semibold text-amber-400 flex items-center gap-1.5">
