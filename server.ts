@@ -113,11 +113,17 @@ interface SerpResult {
   snippet: string;
 }
 
-async function performSerpSearch(rawKeyword: string, location?: string): Promise<{
+async function performSerpSearch(
+  rawKeyword: string,
+  location?: string,
+  options?: { allowSynthetic?: boolean }
+): Promise<{
   keyword: string;
   location: string | null;
   results: SerpResult[];
+  source: 'google' | 'duckduckgo' | 'synthetic' | 'empty';
 }> {
+  const allowSynthetic = options?.allowSynthetic !== false;
   const keyword = (rawKeyword || '').trim().replace(/\s+/g, ' ');
   const query = encodeURIComponent(keyword);
   const gl = location ? `&gl=${encodeURIComponent(location.toLowerCase())}` : '';
@@ -132,6 +138,7 @@ async function performSerpSearch(rawKeyword: string, location?: string): Promise
   };
 
   const results: SerpResult[] = [];
+  let source: 'google' | 'duckduckgo' | 'synthetic' | 'empty' = 'empty';
 
   // Attempt 1: Google SERP fetch
   try {
@@ -167,6 +174,7 @@ async function performSerpSearch(rawKeyword: string, location?: string): Promise
           }
         }
       });
+      if (results.length) source = 'google';
     }
   } catch (gErr) {
     // Continue to fallback
@@ -220,14 +228,16 @@ async function performSerpSearch(rawKeyword: string, location?: string): Promise
             }
           }
         });
+        if (results.length) source = 'duckduckgo';
       }
     } catch (ddgErr) {
       // Continue to intelligent multilingual synthesis
     }
   }
 
-  // Attempt 3: Intelligent, realistic multilingual SERP generation
-  if (results.length === 0) {
+  // Attempt 3: Intelligent, realistic multilingual SERP generation (playground only)
+  if (results.length === 0 && allowSynthetic) {
+    source = 'synthetic';
     const slug = keyword.toLowerCase().replace(/[^a-z0-9äöüß]+/gi, '-');
     const isGerman = /[äöüß]|(auf|der|und|für|mit|bei|arbeit|arbeitsplatz|praxis)/i.test(keyword);
 
@@ -298,6 +308,7 @@ async function performSerpSearch(rawKeyword: string, location?: string): Promise
     keyword,
     location: location || null,
     results: results.slice(0, 10),
+    source,
   };
 }
 
@@ -1123,7 +1134,7 @@ async function liveVisibilityProbe(
     const batchResults = await Promise.all(
       batch.map(async (query) => {
         try {
-          const data = await performSerpSearch(query, 'us');
+          const data = await performSerpSearch(query, 'us', { allowSynthetic: false });
           const organic = (data.results || []).slice(0, 5);
           const blob = organic.map((r) => `${r.title} ${r.snippet} ${r.url}`).join(' ');
           const urls = organic.map((r) => r.url);
@@ -1143,7 +1154,7 @@ async function liveVisibilityProbe(
           }
           return {
             query,
-            engine: 'google_serp',
+            engine: data.source === 'duckduckgo' ? 'duckduckgo_serp' : 'google_serp',
             mentioned,
             cited_url: cited,
             snippet: organic[0]?.snippet || blob.slice(0, 240),
