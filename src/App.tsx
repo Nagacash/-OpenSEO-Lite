@@ -53,7 +53,7 @@ interface ProjectFile {
   content: string;
 }
 
-const GITHUB_REPO = 'https://github.com/openseo-lite/agent';
+const GITHUB_REPO = 'https://github.com/Nagacash/-OpenSEO-Lite';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'playground' | 'agent_prompts' | 'connect' | 'free_keys' | 'code' | 'docs' | 'policy'>('playground');

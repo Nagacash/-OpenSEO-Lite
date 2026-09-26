@@ -355,7 +355,7 @@ async function performPageAudit(targetUrl: string): Promise<PageAuditResult> {
     const res = await fetch(url, {
       headers: {
         'User-Agent':
-          'OpenSEO-Lite-Agent/1.0 (+https://github.com/openseo-lite/agent; Chromium Compatible)',
+          'OpenSEO-Lite-Agent/1.0 (+https://github.com/Nagacash/-OpenSEO-Lite; Chromium Compatible)',
         Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
       },
       signal: AbortSignal.timeout(15000),

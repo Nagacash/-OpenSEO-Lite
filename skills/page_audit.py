@@ -229,7 +229,7 @@ async def page_audit(url: str) -> Dict[str, Any]:
                     args=["--no-sandbox", "--disable-setuid-sandbox"]
                 )
                 page = await browser.new_page(
-                    user_agent="OpenSEO-Lite-Agent/1.0 (+https://github.com/openseo-lite/agent)"
+                    user_agent="OpenSEO-Lite-Agent/1.0 (+https://github.com/Nagacash/-OpenSEO-Lite)"
                 )
                 await page.goto(url, wait_until="domcontentloaded", timeout=25000)
                 await page.wait_for_timeout(1000)

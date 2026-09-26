@@ -20,8 +20,9 @@ Instead of heavy enterprise platforms or expensive monthly subscriptions, OpenSE
 
 ### Step 1: Clone and install dependencies
 ```bash
-git clone https://github.com/your-username/openseo-lite-agent.git
-cd openseo-lite-agent
+git clone https://github.com/Nagacash/-OpenSEO-Lite.git
+cd -OpenSEO-Lite
+# or: cd OpenSEO-Lite  (depending on how git names the folder)
 
 # Install dependencies (Python 3.11+ recommended)
 pip install -r requirements.txt
