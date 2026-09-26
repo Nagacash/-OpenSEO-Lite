@@ -196,7 +196,7 @@ Prioritized Actions:
         # Check NVIDIA NIM (Supports free tier Llama 3 70B, Nemotron, Mistral)
         elif provider == "nvidia" or api_key.startswith("nvapi-"):
             import openai
-            model_name = os.getenv("LLM_MODEL") or "meta/llama-3.1-70b-instruct"
+            model_name = os.getenv("LLM_MODEL") or "google/gemma-4-31b-it"
             client = openai.OpenAI(
                 base_url="https://integrate.api.nvidia.com/v1",
                 api_key=api_key,

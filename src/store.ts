@@ -60,7 +60,7 @@ export const useAppStore = create<AppStoreState>()(
       setProvider: (provider) => {
         let defaultModel = 'meta-llama/llama-3.3-70b-instruct:free';
         if (provider === 'nvidia') {
-          defaultModel = 'meta/llama-3.1-70b-instruct';
+          defaultModel = 'google/gemma-4-31b-it';
         } else if (provider === 'openai') {
           defaultModel = 'gpt-4o-mini';
         }

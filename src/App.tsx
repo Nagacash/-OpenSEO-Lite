@@ -132,6 +132,20 @@ export default function App() {
     setProvider(provider);
   };
 
+  const parseApiJson = async (res: Response) => {
+    const raw = await res.text();
+    try {
+      return JSON.parse(raw);
+    } catch {
+      const snippet = raw.replace(/\s+/g, ' ').trim().slice(0, 160);
+      throw new Error(
+        res.ok
+          ? `Server returned non-JSON (${res.status}): ${snippet || 'empty body'}`
+          : `Request failed (${res.status}): ${snippet || res.statusText}`
+      );
+    }
+  };
+
   const handleRunSerp = async () => {
     const cleaned = serpKeyword.trim();
     if (!cleaned) return;
@@ -143,7 +157,7 @@ export default function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ keyword: cleaned, location: (serpLocation || 'us').trim() }),
       });
-      const data = await res.json();
+      const data = await parseApiJson(res);
       if (!res.ok) throw new Error(data.error || 'Failed to search Google');
       setSerpResult(data);
     } catch (e: any) {
@@ -162,7 +176,7 @@ export default function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url: auditUrl }),
       });
-      const data = await res.json();
+      const data = await parseApiJson(res);
       if (!res.ok) throw new Error(data.error || 'Failed to analyze page');
       setPageAuditResult(data);
     } catch (e: any) {
@@ -190,7 +204,7 @@ export default function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      const data = await res.json();
+      const data = await parseApiJson(res);
       if (!res.ok) throw new Error(data.error || 'Failed to audit site');
       setSiteAuditResult(data);
     } catch (e: any) {
@@ -212,7 +226,7 @@ export default function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ brand, domain }),
       });
-      const data = await res.json();
+      const data = await parseApiJson(res);
       if (!res.ok) throw new Error(data.error || 'Failed to check AI visibility');
       setVisibilityResult(data);
     } catch (e: any) {
@@ -1685,7 +1699,7 @@ python mcp_server.py`}
                         <pre className="p-3.5 bg-[#0C0E12] rounded-xl text-xs font-mono text-teal-300 border border-white/[0.08] overflow-x-auto">
 {`export NVIDIA_API_KEY="nvapi-your-key-here"
 export LLM_PROVIDER="nvidia"
-export LLM_MODEL="meta/llama-3.1-70b-instruct"
+export LLM_MODEL="google/gemma-4-31b-it"
 
 # Start OpenSEO server
 python mcp_server.py`}
@@ -1693,7 +1707,7 @@ python mcp_server.py`}
                         <button
                           onClick={() =>
                             copyToClipboard(
-                              'export NVIDIA_API_KEY="nvapi-..."\nexport LLM_PROVIDER="nvidia"\nexport LLM_MODEL="meta/llama-3.1-70b-instruct"\npython mcp_server.py',
+                              'export NVIDIA_API_KEY="nvapi-..."\nexport LLM_PROVIDER="nvidia"\nexport LLM_MODEL="google/gemma-4-31b-it"\npython mcp_server.py',
                               'nvidia_copy'
                             )
                           }

@@ -6,7 +6,7 @@ import * as cheerio from 'cheerio';
 import { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
 
-dotenv.config();
+dotenv.config({ override: true });
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -733,11 +733,38 @@ Prioritized Actions:
 2. [Action 2: Content/semantic fix + expected SEO impact]
 3. [Action 3: Architecture/authority fix + expected SEO impact]`;
 
-  // 1. Check custom user key from frontend (OpenRouter, NVIDIA NIM, OpenAI, Anthropic)
-  if (customKeyConfig && customKeyConfig.apiKey) {
-    const { provider, apiKey, model } = customKeyConfig;
+  // Resolve LLM config: UI key first, then server .env
+  const envProvider = (process.env.LLM_PROVIDER || '').toLowerCase();
+  const envApiKey =
+    process.env.NVIDIA_API_KEY ||
+    process.env.OPENROUTER_API_KEY ||
+    process.env.OPENAI_API_KEY ||
+    process.env.LLM_API_KEY ||
+    '';
+  const resolvedProvider =
+    customKeyConfig?.provider ||
+    envProvider ||
+    (customKeyConfig?.apiKey?.startsWith('nvapi-') || envApiKey.startsWith('nvapi-')
+      ? 'nvidia'
+      : customKeyConfig?.apiKey?.startsWith('sk-or-') || envApiKey.startsWith('sk-or-')
+        ? 'openrouter'
+        : customKeyConfig?.apiKey?.startsWith('sk-') || envApiKey.startsWith('sk-')
+          ? 'openai'
+          : '');
+  const apiKey = customKeyConfig?.apiKey || envApiKey;
+  const model =
+    customKeyConfig?.model ||
+    process.env.LLM_MODEL ||
+    (resolvedProvider === 'nvidia'
+      ? 'google/gemma-4-31b-it'
+      : resolvedProvider === 'openrouter'
+        ? 'meta-llama/llama-3.3-70b-instruct:free'
+        : 'gpt-4o-mini');
+
+  // 1. OpenRouter / NVIDIA NIM / OpenAI via UI key or .env
+  if (apiKey) {
     try {
-      if (provider === 'openrouter' || apiKey.startsWith('sk-or-')) {
+      if (resolvedProvider === 'openrouter' || apiKey.startsWith('sk-or-')) {
         const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
           method: 'POST',
           headers: {
@@ -747,19 +774,22 @@ Prioritized Actions:
             'X-Title': 'OpenSEO-Lite Agent',
           },
           body: JSON.stringify({
-            model: model || 'meta-llama/llama-3.3-70b-instruct:free',
+            model,
             messages: [{ role: 'user', content: prompt }],
             max_tokens: 600,
             temperature: 0.3,
           }),
         });
-        if (response.ok) {
-          const data = await response.json();
+        const raw = await response.text();
+        if (!response.ok) {
+          console.warn(`OpenRouter ${response.status}:`, raw.slice(0, 300));
+        } else {
+          const data = JSON.parse(raw);
           if (data.choices && data.choices[0]?.message?.content) {
             return data.choices[0].message.content.trim();
           }
         }
-      } else if (provider === 'nvidia' || apiKey.startsWith('nvapi-')) {
+      } else if (resolvedProvider === 'nvidia' || apiKey.startsWith('nvapi-')) {
         const response = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
           method: 'POST',
           headers: {
@@ -767,19 +797,22 @@ Prioritized Actions:
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: model || 'meta/llama-3.1-70b-instruct',
+            model,
             messages: [{ role: 'user', content: prompt }],
             max_tokens: 600,
             temperature: 0.3,
           }),
         });
-        if (response.ok) {
-          const data = await response.json();
+        const raw = await response.text();
+        if (!response.ok) {
+          console.warn(`NVIDIA NIM ${response.status}:`, raw.slice(0, 300));
+        } else {
+          const data = JSON.parse(raw);
           if (data.choices && data.choices[0]?.message?.content) {
             return data.choices[0].message.content.trim();
           }
         }
-      } else if (provider === 'openai' || apiKey.startsWith('sk-')) {
+      } else if (resolvedProvider === 'openai' || apiKey.startsWith('sk-')) {
         const response = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
           headers: {
@@ -787,14 +820,17 @@ Prioritized Actions:
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: model || 'gpt-4o-mini',
+            model,
             messages: [{ role: 'user', content: prompt }],
             max_tokens: 600,
             temperature: 0.3,
           }),
         });
-        if (response.ok) {
-          const data = await response.json();
+        const raw = await response.text();
+        if (!response.ok) {
+          console.warn(`OpenAI ${response.status}:`, raw.slice(0, 300));
+        } else {
+          const data = JSON.parse(raw);
           if (data.choices && data.choices[0]?.message?.content) {
             return data.choices[0].message.content.trim();
           }

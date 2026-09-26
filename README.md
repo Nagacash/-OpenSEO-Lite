@@ -87,7 +87,7 @@ export LLM_MODEL="meta-llama/llama-3.3-70b-instruct:free"
 # Option B: NVIDIA NIM (Free cloud tier credits for Llama 3 70B & Nemotron)
 export NVIDIA_API_KEY="nvapi-..."
 export LLM_PROVIDER="nvidia"
-export LLM_MODEL="meta/llama-3.1-70b-instruct"
+export LLM_MODEL="google/gemma-4-31b-it"
 
 # Option C: OpenAI / Anthropic / Gemini
 export LLM_API_KEY="your-api-key-here"
