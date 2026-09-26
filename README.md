@@ -1,6 +1,10 @@
 # OpenSEO-Lite Agent
 
 <p align="center">
+  <img src="public/images/logo.png" alt="Naga Codex" width="88" height="88" />
+</p>
+
+<p align="center">
   <img src="public/images/hero-banner.jpg" alt="OpenSEO-Lite — MCP SEO agent toolkit" width="100%" />
 </p>
 

@@ -233,9 +233,11 @@ export default function App() {
             onClick={() => setActiveTab('playground')}
             className="flex items-center gap-2.5 shrink-0 text-left"
           >
-            <div className="w-8 h-8 rounded-lg bg-emerald-400 text-slate-950 flex items-center justify-center">
-              <Sparkles className="w-3.5 h-3.5 stroke-[2.5]" />
-            </div>
+            <img
+              src="/images/logo.png"
+              alt="Naga Codex"
+              className="w-8 h-8 rounded-full object-cover ring-1 ring-white/10"
+            />
             <span className="font-display font-extrabold text-[15px] tracking-tight text-white">
               OpenSEO-Lite
             </span>
