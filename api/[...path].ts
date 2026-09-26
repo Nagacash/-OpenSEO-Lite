@@ -1,7 +1,6 @@
 /**
- * Vercel catch-all API handler for /api/*
- * Re-exports the Express app so paths like /api/skills/site_audit work.
+ * Catch-all alias — prefer api/index.ts via vercel.json rewrite.
  */
-import app from '../server';
+import app from '../server.js';
 
 export default app;

@@ -802,6 +802,7 @@ Prioritized Actions:
             max_tokens: 600,
             temperature: 0.3,
           }),
+          signal: AbortSignal.timeout(45000),
         });
         const raw = await response.text();
         if (!response.ok) {
