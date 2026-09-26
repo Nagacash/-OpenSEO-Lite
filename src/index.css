@@ -1,17 +1,92 @@
 @import "tailwindcss";
 
 @layer base {
-  body {
-    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-  }
-  
-  h1, h2, h3, .font-display {
-    font-family: 'Cabinet Grotesk', 'Plus Jakarta Sans', system-ui, sans-serif;
+  :root {
+    --bg: #0c0e12;
+    --panel: #12151b;
+    --ink: #f1f5f9;
+    --muted: #94a3b8;
+    --accent: #34d399;
+    --accent-2: #2dd4bf;
+    --line: rgba(255, 255, 255, 0.08);
+    --ease: cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  code, pre, .font-mono {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  .font-display {
+    font-family: 'Cabinet Grotesk', 'Plus Jakarta Sans', system-ui, sans-serif;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  code,
+  pre,
+  .font-mono {
     font-family: 'JetBrains Mono', monospace;
   }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rise-in {
+  animation: rise-in 0.55s var(--ease) both;
+}
+
+.rise-in-delay-1 {
+  animation-delay: 0.08s;
+}
+
+.rise-in-delay-2 {
+  animation-delay: 0.16s;
+}
+
+.rise-in-delay-3 {
+  animation-delay: 0.24s;
 }
 
 /* Custom scrollbars */

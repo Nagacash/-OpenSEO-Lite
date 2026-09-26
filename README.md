@@ -5,9 +5,9 @@
 </p>
 
 <p align="center">
-  <strong>Give your AI the eyes to browse and audit the web.</strong><br/>
-  Agent-native SEO toolkit for Claude, Cursor, Hermes &amp; Grok — via MCP.<br/>
-  <em>Zero Docker · Zero database · Pip install only · MIT</em>
+  <strong>Check rankings. Audit a page. See if AI mentions your brand.</strong><br/>
+  Four MCP tools for Claude, Cursor, Hermes, and Grok.<br/>
+  <em>No Docker · No database · Pip install · MIT</em>
 </p>
 
 <p align="center">

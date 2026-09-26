@@ -227,212 +227,110 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#0C0E12] text-slate-100 flex flex-col font-sans selection:bg-emerald-400 selection:text-slate-950">
       {/* Top Header with Dribbble elegance */}
-      <header className="border-b border-white/[0.07] bg-[#0C0E12]/80 backdrop-blur-xl sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between gap-6">
-          {/* Brand & Designer Credit */}
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-500/20 text-slate-950">
-              <Sparkles className="w-4 h-4 stroke-[2.5]" />
+      <header className="border-b border-white/[0.06] bg-[#0C0E12]/85 backdrop-blur-xl sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-5 sm:px-6 h-14 flex items-center justify-between gap-4">
+          <button
+            onClick={() => setActiveTab('playground')}
+            className="flex items-center gap-2.5 shrink-0 text-left"
+          >
+            <div className="w-8 h-8 rounded-lg bg-emerald-400 text-slate-950 flex items-center justify-center">
+              <Sparkles className="w-3.5 h-3.5 stroke-[2.5]" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-display font-extrabold text-base tracking-tight text-white block">
-                  OpenSEO-Lite
-                </span>
-                <span className="text-[10px] text-slate-500 font-medium">·</span>
-                <a
-                  href="https://www.nagacodex.cloud/"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-[11px] text-emerald-400 hover:text-emerald-300 font-medium transition-colors flex items-center gap-0.5"
-                >
-                  by Naga Codex
-                  <ArrowUpRight className="w-3 h-3 inline-block" />
-                </a>
-              </div>
-              <span className="text-[11px] text-slate-400 font-medium block -mt-0.5">
-                MCP Agent Tools for Google & On-Page SEO
-              </span>
-            </div>
-          </div>
+            <span className="font-display font-extrabold text-[15px] tracking-tight text-white">
+              OpenSEO-Lite
+            </span>
+          </button>
 
-          {/* Dribbble-style Minimalist Segmented Navigation */}
-          <div className="flex items-center gap-2">
-            <nav className="flex items-center gap-1 bg-white/[0.04] p-1 rounded-xl border border-white/[0.06] overflow-x-auto max-w-full">
-              <button
-                onClick={() => setActiveTab('playground')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 ${
-                  activeTab === 'playground'
-                    ? 'bg-white text-slate-950 shadow-sm'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                Test Tools
-              </button>
-              <button
-                onClick={() => setActiveTab('agent_prompts')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 shrink-0 ${
-                  activeTab === 'agent_prompts'
-                    ? 'bg-white text-slate-950 shadow-sm'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                <MessageSquareCode className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Agent Prompts</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('free_keys')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 shrink-0 ${
-                  activeTab === 'free_keys'
-                    ? 'bg-white text-slate-950 shadow-sm'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                <Key className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Free Models</span>
-                <span className="text-[9px] text-emerald-400 font-bold uppercase">0$</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('connect')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 shrink-0 ${
-                  activeTab === 'connect'
-                    ? 'bg-white text-slate-950 shadow-sm'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                <span>Connect AI</span>
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block animate-pulse" />
-              </button>
-              <button
-                onClick={() => setActiveTab('code')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 ${
-                  activeTab === 'code'
-                    ? 'bg-white text-slate-950 shadow-sm'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                Code
-              </button>
-              <button
-                onClick={() => setActiveTab('docs')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 shrink-0 ${
-                  activeTab === 'docs'
-                    ? 'bg-white text-slate-950 shadow-sm'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                <BookOpen className="w-3.5 h-3.5 text-emerald-400" />
-                <span>How it works</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('policy')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1 shrink-0 ${
-                  activeTab === 'policy'
-                    ? 'bg-white text-slate-950 shadow-sm'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                <ShieldCheck className="w-3.5 h-3.5 text-teal-400" />
-                <span>Policy & OWASP</span>
-              </button>
+          <div className="flex items-center gap-2 min-w-0">
+            <nav className="hidden md:flex items-center gap-0.5 bg-white/[0.03] p-1 rounded-lg border border-white/[0.06]">
+              {[
+                { id: 'playground' as const, label: 'Tools' },
+                { id: 'connect' as const, label: 'Connect' },
+                { id: 'agent_prompts' as const, label: 'Prompts' },
+                { id: 'free_keys' as const, label: 'Keys' },
+                { id: 'docs' as const, label: 'Guide' },
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id)}
+                  className={`px-3 py-1.5 rounded-md text-[12px] font-medium transition-colors ${
+                    activeTab === item.id
+                      ? 'bg-white text-slate-950'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
             </nav>
+
+            <select
+              className="md:hidden bg-[#12151B] border border-white/[0.08] rounded-lg px-2.5 py-2 text-[12px] text-slate-200"
+              value={activeTab}
+              onChange={(e) => setActiveTab(e.target.value as typeof activeTab)}
+              aria-label="Section"
+            >
+              <option value="playground">Tools</option>
+              <option value="connect">Connect</option>
+              <option value="agent_prompts">Prompts</option>
+              <option value="free_keys">Keys</option>
+              <option value="docs">Guide</option>
+              <option value="code">Code</option>
+              <option value="policy">Security</option>
+            </select>
 
             <a
               href={GITHUB_REPO}
               target="_blank"
               rel="noreferrer"
-              className="px-3 py-2 rounded-xl border border-white/[0.08] bg-white/[0.04] hover:border-emerald-400/40 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-all shrink-0"
-              title="View on GitHub"
+              className="p-2 rounded-lg border border-white/[0.08] text-slate-300 hover:text-white hover:border-white/20 transition-colors"
+              title="GitHub"
             >
-              <Github className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">GitHub</span>
+              <Github className="w-4 h-4" />
             </a>
 
-            {/* Quick API Key Modal Trigger */}
             <button
               onClick={() => setIsKeyModalOpen(true)}
-              className={`px-3 py-2 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition-all shrink-0 ${
+              className={`px-3 py-2 rounded-lg border text-[12px] font-semibold flex items-center gap-1.5 transition-colors ${
                 customApiKey
-                  ? 'bg-emerald-400/10 border-emerald-400/40 text-emerald-300'
-                  : 'bg-white/[0.04] border-white/[0.08] hover:border-emerald-400/40 text-slate-300 hover:text-white'
+                  ? 'border-emerald-400/40 text-emerald-300 bg-emerald-400/10'
+                  : 'border-white/[0.08] text-slate-300 hover:text-white'
               }`}
-              title="Add or configure your OpenRouter / NVIDIA NIM API key"
             >
-              <Key className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="hidden sm:inline">
-                {customApiKey ? 'Key Active' : 'Add API Key'}
-              </span>
-              {customApiKey && (
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-              )}
+              <Key className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">{customApiKey ? 'Key on' : 'API key'}</span>
             </button>
           </div>
         </div>
       </header>
 
-      {/* Main Container */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-6 py-8">
+      <main className="flex-1 max-w-6xl w-full mx-auto px-5 sm:px-6 py-6 sm:py-8">
         {errorMsg && (
-          <div className="mb-6 p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
-              <span>{errorMsg}</span>
+          <div className="mb-5 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-sm flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 min-w-0">
+              <AlertTriangle className="w-4 h-4 shrink-0" />
+              <span className="truncate">{errorMsg}</span>
             </div>
-            <button onClick={() => setErrorMsg(null)} className="text-rose-400 hover:text-rose-200">
+            <button onClick={() => setErrorMsg(null)} className="text-rose-400 hover:text-rose-200 text-xs shrink-0">
               Dismiss
             </button>
           </div>
         )}
 
-        {/* Global Key Status Banner */}
-        {activeTab !== 'policy' && (
-          <div className="mb-8 p-4 rounded-2xl bg-gradient-to-r from-emerald-950/30 via-slate-900/60 to-slate-900/40 border border-emerald-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-start sm:items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-emerald-400/10 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
-                <Key className="w-4 h-4" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-white uppercase tracking-wider">
-                    {customApiKey ? 'Your free model key is ready' : 'Optional: unlock smarter AI summaries'}
-                  </span>
-                  <span className="text-[10px] text-slate-500 font-bold">·</span>
-                  <span className="text-xs text-emerald-400 font-semibold">
-                    {customApiKey
-                      ? `Connected: ${customProvider.toUpperCase()} (${customModel})`
-                      : 'Works without a key — or plug in OpenRouter free models'}
-                  </span>
-                </div>
-                <p className="text-[11px] text-slate-400 mt-0.5">
-                  {customApiKey
-                    ? 'Keys stay in your browser. No account. No telemetry database.'
-                    : 'Get Llama 3.3 70B reasoning with a free OpenRouter or NVIDIA key.'}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 shrink-0">
-              <button
-                onClick={() => setIsKeyModalOpen(true)}
-                className="px-4 py-2 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md shadow-emerald-400/10"
-              >
-                <Key className="w-3.5 h-3.5" />
-                <span>{customApiKey ? 'Change Key / Model' : 'Enter API Key (1-Click)'}</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('agent_prompts')}
-                className="px-3 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 hover:text-white text-xs font-medium transition-colors flex items-center gap-1"
-              >
-                <MessageSquareCode className="w-3 h-3 text-emerald-400" />
-                <span>Get Agent Prompt</span>
-              </button>
-            </div>
-          </div>
+        {/* Quiet key note — not a competing hero banner */}
+        {activeTab === 'playground' && !customApiKey && (
+          <p className="mb-5 text-[13px] text-slate-500">
+            Works without a key.{' '}
+            <button
+              onClick={() => setIsKeyModalOpen(true)}
+              className="text-emerald-400/90 hover:text-emerald-300 underline underline-offset-2"
+            >
+              Add OpenRouter
+            </button>{' '}
+            only if you want longer AI write-ups.
+          </p>
         )}
 
-        {/* =================================================================== */}
-        {/* TAB: POLICY & OWASP COMPLIANCE PAGE                                 */}
-        {/* =================================================================== */}
         {activeTab === 'policy' && (
           <PolicyPage onBack={() => setActiveTab('playground')} />
         )}
@@ -441,18 +339,13 @@ export default function App() {
         {/* TAB: AGENT USER PROMPT (HERMES, GROK, CLAUDE, CURSOR)               */}
         {/* =================================================================== */}
         {activeTab === 'agent_prompts' && (
-          <div className="space-y-8 max-w-4xl mx-auto">
+          <div className="space-y-7 max-w-4xl mx-auto">
             <div>
-              <div className="flex items-center gap-2 text-xs font-semibold text-emerald-400 uppercase tracking-wider mb-1">
-                <span>Autonomous AI Agent Toolkit</span>
-                <span>·</span>
-                <span>System Prompts</span>
-              </div>
               <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                Agent User Prompts for Hermes, Grok, & Claude
+                Copy a prompt. Paste it into your agent.
               </h2>
-              <p className="text-sm text-slate-400 mt-2 leading-relaxed">
-                Give these system instructions to <strong>Hermes Agent</strong>, <strong>Grok</strong>, or your custom coding assistant. It instructs the agent on how to boot the MCP server, invoke the 4 tools, and provide structured SEO action plans without hallucinating.
+              <p className="text-[15px] text-slate-400 mt-2 leading-relaxed max-w-2xl">
+                These tell Hermes, Grok, or Claude how to use the four OpenSEO-Lite tools without inventing rankings.
               </p>
             </div>
 
@@ -543,145 +436,128 @@ export default function App() {
         {/* TAB 1: TOOL PLAYGROUND (WITH PROMINENT KEY CARD)                    */}
         {/* =================================================================== */}
         {activeTab === 'playground' && (
-          <div className="space-y-8">
-            {/* Hero composition — brand + visual + one CTA group */}
-            <section className="relative overflow-hidden rounded-3xl border border-white/[0.08] bg-[#0A0C10]">
-              <div className="absolute inset-0">
-                <img
-                  src="/images/playground-banner.jpg"
-                  alt=""
-                  className="h-full w-full object-cover opacity-55"
-                  loading="eager"
-                />
-                <div className="absolute inset-0 bg-gradient-to-r from-[#0C0E12] via-[#0C0E12]/88 to-[#0C0E12]/35" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0C0E12] via-transparent to-transparent" />
-              </div>
+          <div className="space-y-7">
+            {/* Hero: image is the plane, brand is the signal */}
+            <section className="relative overflow-hidden rounded-[1.75rem] border border-white/[0.07] min-h-[320px] sm:min-h-[380px]">
+              <img
+                src="/images/playground-banner.jpg"
+                alt=""
+                className="absolute inset-0 h-full w-full object-cover object-center"
+                loading="eager"
+              />
+              <div className="absolute inset-0 bg-[#0C0E12]/55 sm:bg-[#0C0E12]/40" />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#0C0E12] via-[#0C0E12]/92 to-transparent w-full sm:w-[72%]" />
 
-              <div className="relative px-6 py-12 sm:px-10 sm:py-16 max-w-2xl">
-                <p className="font-display text-4xl sm:text-5xl font-black tracking-tight text-white">
+              <div className="relative px-6 py-10 sm:px-10 sm:py-14 max-w-xl">
+                <p className="rise-in font-display text-[2.5rem] sm:text-5xl font-black tracking-tight text-white leading-[1.05]">
                   OpenSEO-Lite
                 </p>
-                <h2 className="mt-3 text-lg sm:text-xl text-slate-200 font-semibold leading-snug">
-                  Give your AI the eyes to browse and audit the web.
+                <h2 className="rise-in rise-in-delay-1 mt-4 text-[1.05rem] sm:text-xl text-slate-100 font-medium leading-snug max-w-md">
+                  Check rankings. Audit a page. See if AI mentions your brand.
                 </h2>
-                <p className="mt-3 text-sm text-slate-400 leading-relaxed max-w-lg">
-                  Four MCP skills. Zero Docker. Zero database. Pip-install and plug into Claude, Cursor, or Hermes.
+                <p className="rise-in rise-in-delay-2 mt-3 text-[15px] text-slate-400 leading-relaxed max-w-sm">
+                  Four tools for Claude, Cursor, or Hermes. No Docker. No database. Just pip install.
                 </p>
-                <div className="mt-6 flex flex-wrap gap-3">
+                <div className="rise-in rise-in-delay-3 mt-7 flex flex-wrap gap-2.5">
                   <button
-                    onClick={() => setSelectedTool('site_audit')}
-                    className="px-5 py-2.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 text-sm font-bold transition-colors"
+                    onClick={() => {
+                      setSelectedTool('site_audit');
+                      document.getElementById('skill-workspace')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }}
+                    className="px-5 py-2.5 rounded-lg bg-emerald-400 hover:bg-emerald-300 text-slate-950 text-[13px] font-bold transition-colors"
                   >
-                    Try site audit
+                    Run a site audit
                   </button>
-                  <a
-                    href={GITHUB_REPO}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="px-5 py-2.5 rounded-xl border border-white/15 hover:border-emerald-400/40 text-slate-200 text-sm font-semibold inline-flex items-center gap-2 transition-colors"
+                  <button
+                    onClick={() => setActiveTab('connect')}
+                    className="px-5 py-2.5 rounded-lg border border-white/15 hover:border-white/30 text-slate-100 text-[13px] font-semibold transition-colors"
                   >
-                    <Github className="w-4 h-4" />
-                    Star on GitHub
-                  </a>
+                    Connect your agent
+                  </button>
                 </div>
-                <p className="mt-5 text-[11px] text-slate-500 tracking-wide uppercase">
-                  Claude Desktop · Cursor · Hermes · OpenRouter free models
-                </p>
               </div>
             </section>
 
-            <div>
-              <h3 className="font-display text-lg font-bold text-white">Pick a skill</h3>
-              <p className="text-xs text-slate-400 mt-1">
-                Each returns clean JSON so agents can act without hallucinating rankings.
-              </p>
+            <div className="flex items-end justify-between gap-4">
+              <div>
+                <h3 className="font-display text-base font-bold text-white">Tools</h3>
+                <p className="text-[13px] text-slate-500 mt-0.5">
+                  Pick one, paste a URL or keyword, get JSON back.
+                </p>
+              </div>
+              <button
+                onClick={() => setActiveTab('docs')}
+                className="hidden sm:inline text-[12px] text-slate-500 hover:text-emerald-400 transition-colors"
+              >
+                How it works →
+              </button>
             </div>
 
-            {/* 4 Skill Tabs */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {/* Skill picker */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
               <button
                 onClick={() => setSelectedTool('site_audit')}
-                className={`p-4 rounded-2xl border text-left transition-all ${
+                className={`p-4 rounded-2xl border text-left transition-colors ${
                   selectedTool === 'site_audit'
-                    ? 'bg-white/[0.05] border-emerald-400/50 shadow-lg shadow-emerald-500/5'
-                    : 'bg-white/[0.02] border-white/[0.06] hover:border-white/[0.12]'
+                    ? 'bg-white/[0.06] border-emerald-400/50'
+                    : 'bg-white/[0.02] border-white/[0.06] hover:border-white/[0.14]'
                 }`}
               >
-                <div className="flex items-center justify-between mb-3">
-                  <div className="w-8 h-8 rounded-xl bg-emerald-400/10 text-emerald-400 flex items-center justify-center">
-                    <Sparkles className="w-4 h-4" />
-                  </div>
-                  <span className="text-[11px] font-medium text-emerald-400">Most Popular</span>
-                </div>
-                <h3 className="font-display font-bold text-sm text-white">Full Site Audit</h3>
-                <p className="text-xs text-slate-400 mt-1 leading-normal">
-                  SEO health score (0–100) + top 3 action items to boost rankings.
+                <Sparkles className="w-4 h-4 text-emerald-400 mb-3" />
+                <h3 className="font-display font-bold text-sm text-white">Site audit</h3>
+                <p className="text-[12px] text-slate-500 mt-1 leading-relaxed">
+                  Score plus the next fixes to make.
                 </p>
               </button>
 
               <button
                 onClick={() => setSelectedTool('serp_search')}
-                className={`p-4 rounded-2xl border text-left transition-all ${
+                className={`p-4 rounded-2xl border text-left transition-colors ${
                   selectedTool === 'serp_search'
-                    ? 'bg-white/[0.05] border-emerald-400/50 shadow-lg shadow-emerald-500/5'
-                    : 'bg-white/[0.02] border-white/[0.06] hover:border-white/[0.12]'
+                    ? 'bg-white/[0.06] border-emerald-400/50'
+                    : 'bg-white/[0.02] border-white/[0.06] hover:border-white/[0.14]'
                 }`}
               >
-                <div className="flex items-center justify-between mb-3">
-                  <div className="w-8 h-8 rounded-xl bg-teal-400/10 text-teal-400 flex items-center justify-center">
-                    <Search className="w-4 h-4" />
-                  </div>
-                  <span className="text-[11px] font-medium text-slate-500">Google SERP</span>
-                </div>
-                <h3 className="font-display font-bold text-sm text-white">Google Rank Search</h3>
-                <p className="text-xs text-slate-400 mt-1 leading-normal">
-                  Find out who ranks on page 1 for any search query and region.
+                <Search className="w-4 h-4 text-teal-400 mb-3" />
+                <h3 className="font-display font-bold text-sm text-white">SERP search</h3>
+                <p className="text-[12px] text-slate-500 mt-1 leading-relaxed">
+                  Who ranks for a keyword right now.
                 </p>
               </button>
 
               <button
                 onClick={() => setSelectedTool('page_audit')}
-                className={`p-4 rounded-2xl border text-left transition-all ${
+                className={`p-4 rounded-2xl border text-left transition-colors ${
                   selectedTool === 'page_audit'
-                    ? 'bg-white/[0.05] border-emerald-400/50 shadow-lg shadow-emerald-500/5'
-                    : 'bg-white/[0.02] border-white/[0.06] hover:border-white/[0.12]'
+                    ? 'bg-white/[0.06] border-emerald-400/50'
+                    : 'bg-white/[0.02] border-white/[0.06] hover:border-white/[0.14]'
                 }`}
               >
-                <div className="flex items-center justify-between mb-3">
-                  <div className="w-8 h-8 rounded-xl bg-indigo-400/10 text-indigo-400 flex items-center justify-center">
-                    <FileSearch className="w-4 h-4" />
-                  </div>
-                  <span className="text-[11px] font-medium text-slate-500">On-Page</span>
-                </div>
-                <h3 className="font-display font-bold text-sm text-white">Page Audit</h3>
-                <p className="text-xs text-slate-400 mt-1 leading-normal">
-                  Titles, headings, links, thin content — technical SEO flags.
+                <FileSearch className="w-4 h-4 text-slate-300 mb-3" />
+                <h3 className="font-display font-bold text-sm text-white">Page audit</h3>
+                <p className="text-[12px] text-slate-500 mt-1 leading-relaxed">
+                  Titles, headings, links, thin copy.
                 </p>
               </button>
 
               <button
                 onClick={() => setSelectedTool('ai_visibility_check')}
-                className={`p-4 rounded-2xl border text-left transition-all ${
+                className={`p-4 rounded-2xl border text-left transition-colors ${
                   selectedTool === 'ai_visibility_check'
-                    ? 'bg-white/[0.05] border-emerald-400/50 shadow-lg shadow-emerald-500/5'
-                    : 'bg-white/[0.02] border-white/[0.06] hover:border-white/[0.12]'
+                    ? 'bg-white/[0.06] border-emerald-400/50'
+                    : 'bg-white/[0.02] border-white/[0.06] hover:border-white/[0.14]'
                 }`}
               >
-                <div className="flex items-center justify-between mb-3">
-                  <div className="w-8 h-8 rounded-xl bg-amber-400/10 text-amber-400 flex items-center justify-center">
-                    <Radar className="w-4 h-4" />
-                  </div>
-                  <span className="text-[11px] font-medium text-amber-400">New</span>
-                </div>
-                <h3 className="font-display font-bold text-sm text-white">AI Visibility</h3>
-                <p className="text-xs text-slate-400 mt-1 leading-normal">
-                  Are answer engines mentioning and citing your brand?
+                <Radar className="w-4 h-4 text-amber-400 mb-3" />
+                <h3 className="font-display font-bold text-sm text-white">AI visibility</h3>
+                <p className="text-[12px] text-slate-500 mt-1 leading-relaxed">
+                  Brand mentions and citations.
                 </p>
               </button>
             </div>
 
             {/* Interactive Workspace Box */}
-            <div className="bg-[#12151B] border border-white/[0.08] rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+            <div id="skill-workspace" className="bg-[#12151B] border border-white/[0.08] rounded-3xl p-5 sm:p-7 shadow-2xl relative overflow-hidden">
               {/* Inline Key Configuration Box */}
               {selectedTool === 'site_audit' && (
                 <div className="mb-6 p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -1984,12 +1860,12 @@ python mcp_server.py`}
                 loading="lazy"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0C0E12] via-[#0C0E12]/40 to-transparent" />
-              <div className="absolute bottom-0 left-0 p-6 sm:p-8">
+              <div className="absolute bottom-0 left-0 p-6 sm:p-8 max-w-xl">
                 <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                  How OpenSEO-Lite Works in 3 Minutes
+                  How it works
                 </h2>
-                <p className="text-sm text-slate-300 mt-2 max-w-xl leading-relaxed">
-                  Most SEO tools cost $100+/month. OpenSEO-Lite gives your AI agent live browsing tools so you can ask normal questions.
+                <p className="text-[15px] text-slate-300 mt-2 leading-relaxed">
+                  Ask in plain English. The agent calls a tool. You get a score and a short list of fixes.
                 </p>
               </div>
             </div>
@@ -2309,51 +2185,37 @@ python mcp_server.py`}
         </div>
       )}
 
-      {/* Footer with Naga Codex credit and Policy Link */}
-      <footer className="border-t border-white/[0.06] py-6 text-xs text-slate-500">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span>OpenSEO-Lite Agent</span>
+      <footer className="border-t border-white/[0.06] py-6 text-[12px] text-slate-500">
+        <div className="max-w-6xl mx-auto px-5 sm:px-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span className="text-slate-400">OpenSEO-Lite</span>
             <span aria-hidden="true">·</span>
-            <span>Designed by</span>
             <a
               href="https://www.nagacodex.cloud/"
               target="_blank"
               rel="noreferrer"
-              className="text-emerald-400 hover:text-emerald-300 font-medium inline-flex items-center gap-1 transition-colors underline-offset-4 hover:underline"
+              className="text-emerald-400/90 hover:text-emerald-300 transition-colors"
             >
-              <span>Naga Codex</span>
-              <ArrowUpRight className="w-3.5 h-3.5" />
+              Naga Codex
             </a>
             <span aria-hidden="true">·</span>
             <a
               href={GITHUB_REPO}
               target="_blank"
               rel="noreferrer"
-              className="text-slate-400 hover:text-white transition-colors inline-flex items-center gap-1"
+              className="hover:text-white transition-colors"
             >
-              <Github className="w-3.5 h-3.5" />
-              <span>GitHub</span>
+              GitHub
             </a>
             <span aria-hidden="true">·</span>
             <button
               onClick={() => setActiveTab('policy')}
-              className="text-slate-400 hover:text-white transition-colors underline underline-offset-4"
+              className="hover:text-white transition-colors"
             >
-              Policy & Security (OWASP)
+              Security
             </button>
           </div>
-          <div className="flex items-center gap-4 text-slate-400">
-            <span>OpenRouter</span>
-            <span aria-hidden="true">·</span>
-            <span>NVIDIA NIM</span>
-            <span aria-hidden="true">·</span>
-            <span>Hermes</span>
-            <span aria-hidden="true">·</span>
-            <span>Grok</span>
-            <span aria-hidden="true">·</span>
-            <span>Claude</span>
-          </div>
+          <p className="text-slate-600">MIT · no Docker · no database</p>
         </div>
       </footer>
     </div>
