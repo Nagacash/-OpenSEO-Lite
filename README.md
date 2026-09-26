@@ -1,18 +1,38 @@
 # OpenSEO-Lite Agent
 
-> Minimal, local-first SEO automation toolkit powered by `browser-use` and the Model Context Protocol (MCP).
-> 
+<p align="center">
+  <img src="public/images/hero-banner.jpg" alt="OpenSEO-Lite — MCP SEO agent toolkit" width="100%" />
+</p>
+
+<p align="center">
+  <strong>Give your AI the eyes to browse and audit the web.</strong><br/>
+  Agent-native SEO toolkit for Claude, Cursor, Hermes &amp; Grok — via MCP.<br/>
+  <em>Zero Docker · Zero database · Pip install only · MIT</em>
+</p>
+
+<p align="center">
+  <a href="https://github.com/Nagacash/-OpenSEO-Lite"><img src="https://img.shields.io/badge/GitHub-Nagacash%2F--OpenSEO--Lite-0C0E12?style=for-the-badge&logo=github" alt="GitHub" /></a>
+  <a href="https://modelcontextprotocol.io/"><img src="https://img.shields.io/badge/MCP-Ready-34d399?style=for-the-badge" alt="MCP" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-2dd4bf?style=for-the-badge" alt="MIT" /></a>
+</p>
+
 > **Designed by [Naga Codex](https://www.nagacodex.cloud/)**
 
-## What is OpenSEO-Lite Agent?
+## Why OpenSEO-Lite?
 
-**OpenSEO-Lite Agent** is a developer-friendly MCP server that equips your favorite AI agent (Claude Desktop, Cursor, Windsurf, or custom LLM agents) with live web browsing capabilities to automate SEO workflows.
+Enterprise SEO suites are heavy, expensive, and dashboard-first.  
+**OpenSEO-Lite is agent-first:** four sharp tools your LLM can call to scrape SERPs, audit pages, score sites, and check AI visibility — then return structured JSON and a 3-step action plan.
 
-Instead of heavy enterprise platforms or expensive monthly subscriptions, OpenSEO-Lite provides 4 focused, high-precision tools:
-1. **`serp_search`**: Navigates Google SERPs via Playwright to extract real-time organic rankings, snippets, and positions for any keyword and region.
-2. **`page_audit`**: Inspects title tags, meta descriptions, semantic heading hierarchies (`h1`, `h2`, `h3`), word counts, link profiles (internal vs. external), and detects on-page SEO issues.
-3. **`site_audit`**: Combines on-page auditing with an automated health score (0–100), issue severity triage, and an AI-synthesized 3-step prioritized action plan. Includes **heuristic** estimated CWV and suggested topics (clearly labeled — not live CrUX/ranks).
-4. **`ai_visibility_check`**: Scores whether AI/SERP surfaces mention and cite your brand (demo fixtures by default; `--live` for Google SERP probes).
+| Skill | What it does |
+|---|---|
+| `serp_search` | Live organic Google rankings by keyword + region |
+| `page_audit` | Titles, headings, links, thin-content flags |
+| `site_audit` | 0–100 health score + prioritized fixes |
+| `ai_visibility_check` | Are answer engines mentioning & citing your brand? |
+
+<p align="center">
+  <img src="public/images/playground-banner.jpg" alt="OpenSEO-Lite playground — rankings, radar, growth" width="90%" />
+</p>
 
 ---
 

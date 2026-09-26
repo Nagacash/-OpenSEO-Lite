@@ -544,16 +544,56 @@ export default function App() {
         {/* =================================================================== */}
         {activeTab === 'playground' && (
           <div className="space-y-8">
-            {/* Hero text */}
-            <div className="max-w-2xl">
-              <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                Give your AI the eyes to browse and audit the web.
-              </h2>
-              <p className="text-sm text-slate-400 mt-2 leading-relaxed">
-                Try all 4 skills below. Each returns clean JSON so agents like Hermes, Grok, or Claude can act without hallucinating rankings.
-              </p>
-              <p className="text-[11px] text-slate-500 mt-3 tracking-wide uppercase">
-                Works with Claude Desktop · Cursor · Hermes · OpenRouter free models
+            {/* Hero composition — brand + visual + one CTA group */}
+            <section className="relative overflow-hidden rounded-3xl border border-white/[0.08] bg-[#0A0C10]">
+              <div className="absolute inset-0">
+                <img
+                  src="/images/playground-banner.jpg"
+                  alt=""
+                  className="h-full w-full object-cover opacity-55"
+                  loading="eager"
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-[#0C0E12] via-[#0C0E12]/88 to-[#0C0E12]/35" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0C0E12] via-transparent to-transparent" />
+              </div>
+
+              <div className="relative px-6 py-12 sm:px-10 sm:py-16 max-w-2xl">
+                <p className="font-display text-4xl sm:text-5xl font-black tracking-tight text-white">
+                  OpenSEO-Lite
+                </p>
+                <h2 className="mt-3 text-lg sm:text-xl text-slate-200 font-semibold leading-snug">
+                  Give your AI the eyes to browse and audit the web.
+                </h2>
+                <p className="mt-3 text-sm text-slate-400 leading-relaxed max-w-lg">
+                  Four MCP skills. Zero Docker. Zero database. Pip-install and plug into Claude, Cursor, or Hermes.
+                </p>
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <button
+                    onClick={() => setSelectedTool('site_audit')}
+                    className="px-5 py-2.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 text-sm font-bold transition-colors"
+                  >
+                    Try site audit
+                  </button>
+                  <a
+                    href={GITHUB_REPO}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-5 py-2.5 rounded-xl border border-white/15 hover:border-emerald-400/40 text-slate-200 text-sm font-semibold inline-flex items-center gap-2 transition-colors"
+                  >
+                    <Github className="w-4 h-4" />
+                    Star on GitHub
+                  </a>
+                </div>
+                <p className="mt-5 text-[11px] text-slate-500 tracking-wide uppercase">
+                  Claude Desktop · Cursor · Hermes · OpenRouter free models
+                </p>
+              </div>
+            </section>
+
+            <div>
+              <h3 className="font-display text-lg font-bold text-white">Pick a skill</h3>
+              <p className="text-xs text-slate-400 mt-1">
+                Each returns clean JSON so agents can act without hallucinating rankings.
               </p>
             </div>
 
@@ -1936,13 +1976,22 @@ python mcp_server.py`}
         {/* =================================================================== */}
         {activeTab === 'docs' && (
           <div className="space-y-8 max-w-4xl">
-            <div>
-              <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                How OpenSEO-Lite Works in 3 Minutes
-              </h2>
-              <p className="text-sm text-slate-400 mt-2 leading-relaxed">
-                Most SEO tools cost $100+/month and come with complex dashboards you never use. OpenSEO-Lite gives your AI agent direct browsing tools so you can ask normal questions.
-              </p>
+            <div className="relative overflow-hidden rounded-3xl border border-white/[0.08]">
+              <img
+                src="/images/hero-banner.jpg"
+                alt="OpenSEO-Lite MCP network visualization"
+                className="w-full h-44 sm:h-56 object-cover"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0C0E12] via-[#0C0E12]/40 to-transparent" />
+              <div className="absolute bottom-0 left-0 p-6 sm:p-8">
+                <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                  How OpenSEO-Lite Works in 3 Minutes
+                </h2>
+                <p className="text-sm text-slate-300 mt-2 max-w-xl leading-relaxed">
+                  Most SEO tools cost $100+/month. OpenSEO-Lite gives your AI agent live browsing tools so you can ask normal questions.
+                </p>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
