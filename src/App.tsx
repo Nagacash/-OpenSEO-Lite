@@ -122,6 +122,22 @@ export default function App() {
       .catch((err) => console.error('Failed to load project files:', err));
   }, []);
 
+  useEffect(() => {
+    const tab = new URLSearchParams(window.location.search).get('tab');
+    const allowed = new Set([
+      'playground',
+      'connect',
+      'agent_prompts',
+      'free_keys',
+      'docs',
+      'code',
+      'policy',
+    ]);
+    if (tab && allowed.has(tab)) {
+      setActiveTab(tab as typeof activeTab);
+    }
+  }, []);
+
   const copyToClipboard = (text: string, key: string) => {
     navigator.clipboard.writeText(text);
     setCopiedKey(key);
@@ -260,15 +276,24 @@ export default function App() {
           <div className="flex items-center gap-2 min-w-0">
             <nav className="hidden md:flex items-center gap-0.5 bg-white/[0.03] p-1 rounded-lg border border-white/[0.06]">
               {[
-                { id: 'playground' as const, label: 'Tools' },
-                { id: 'connect' as const, label: 'Connect' },
-                { id: 'agent_prompts' as const, label: 'Prompts' },
-                { id: 'free_keys' as const, label: 'Keys' },
-                { id: 'docs' as const, label: 'Guide' },
+                { id: 'playground' as const, label: 'Tools', href: '/' },
+                { id: 'connect' as const, label: 'Connect', href: '/?tab=connect' },
+                { id: 'agent_prompts' as const, label: 'Prompts', href: '/?tab=agent_prompts' },
+                { id: 'free_keys' as const, label: 'Keys', href: '/?tab=free_keys' },
+                { id: 'docs' as const, label: 'Guide', href: '/?tab=docs' },
               ].map((item) => (
-                <button
+                <a
                   key={item.id}
-                  onClick={() => setActiveTab(item.id)}
+                  href={item.href}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setActiveTab(item.id);
+                    window.history.replaceState(
+                      null,
+                      '',
+                      item.id === 'playground' ? '/' : `/?tab=${item.id}`
+                    );
+                  }}
                   className={`px-3 py-1.5 rounded-md text-[12px] font-medium transition-colors ${
                     activeTab === item.id
                       ? 'bg-white text-slate-950'
@@ -276,7 +301,7 @@ export default function App() {
                   }`}
                 >
                   {item.label}
-                </button>
+                </a>
               ))}
             </nav>
 
@@ -465,9 +490,9 @@ export default function App() {
               <div className="absolute inset-0 bg-gradient-to-r from-[#0C0E12] via-[#0C0E12]/92 to-transparent w-full sm:w-[72%]" />
 
               <div className="relative px-6 py-10 sm:px-10 sm:py-14 max-w-xl">
-                <p className="rise-in font-display text-[2.5rem] sm:text-5xl font-black tracking-tight text-white leading-[1.05]">
+                <h1 className="rise-in font-display text-[2.5rem] sm:text-5xl font-black tracking-tight text-white leading-[1.05]">
                   OpenSEO-Lite
-                </p>
+                </h1>
                 <h2 className="rise-in rise-in-delay-1 mt-4 text-[1.05rem] sm:text-xl text-slate-100 font-medium leading-snug max-w-md">
                   Check rankings. Audit a page. See if AI mentions your brand.
                 </h2>
@@ -475,38 +500,50 @@ export default function App() {
                   Four tools for Claude, Cursor, or Hermes. No Docker. No database. Just pip install.
                 </p>
                 <div className="rise-in rise-in-delay-3 mt-7 flex flex-wrap gap-2.5">
-                  <button
-                    onClick={() => {
+                  <a
+                    href="/"
+                    onClick={(e) => {
+                      e.preventDefault();
                       setSelectedTool('site_audit');
                       document.getElementById('skill-workspace')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }}
                     className="px-5 py-2.5 rounded-lg bg-emerald-400 hover:bg-emerald-300 text-slate-950 text-[13px] font-bold transition-colors"
                   >
                     Run a site audit
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('connect')}
+                  </a>
+                  <a
+                    href="/?tab=connect"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setActiveTab('connect');
+                      window.history.replaceState(null, '', '/?tab=connect');
+                    }}
                     className="px-5 py-2.5 rounded-lg border border-white/15 hover:border-white/30 text-slate-100 text-[13px] font-semibold transition-colors"
                   >
                     Connect your agent
-                  </button>
+                  </a>
                 </div>
               </div>
             </section>
 
             <div className="flex items-end justify-between gap-4">
               <div>
-                <h3 className="font-display text-base font-bold text-white">Tools</h3>
+                <h2 className="font-display text-base font-bold text-white">Tools</h2>
                 <p className="text-[13px] text-slate-500 mt-0.5">
                   Pick one, paste a URL or keyword, get JSON back.
                 </p>
               </div>
-              <button
-                onClick={() => setActiveTab('docs')}
+              <a
+                href="/?tab=docs"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setActiveTab('docs');
+                  window.history.replaceState(null, '', '/?tab=docs');
+                }}
                 className="hidden sm:inline text-[12px] text-slate-500 hover:text-emerald-400 transition-colors"
               >
                 How it works →
-              </button>
+              </a>
             </div>
 
             {/* Skill picker */}
@@ -2204,7 +2241,21 @@ python mcp_server.py`}
       <footer className="border-t border-white/[0.06] py-6 text-[12px] text-slate-500">
         <div className="max-w-6xl mx-auto px-5 sm:px-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <span className="text-slate-400">OpenSEO-Lite</span>
+            <a href="/" className="text-slate-400 hover:text-white transition-colors">
+              OpenSEO-Lite
+            </a>
+            <span aria-hidden="true">·</span>
+            <a href="/?tab=connect" className="hover:text-white transition-colors">
+              Connect
+            </a>
+            <span aria-hidden="true">·</span>
+            <a href="/?tab=docs" className="hover:text-white transition-colors">
+              Guide
+            </a>
+            <span aria-hidden="true">·</span>
+            <a href="/?tab=policy" className="hover:text-white transition-colors">
+              Security
+            </a>
             <span aria-hidden="true">·</span>
             <a
               href="https://www.nagacodex.cloud/"

@@ -12,12 +12,83 @@
     <meta property="og:image" content="/images/og-social.jpg" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content="/images/og-social.jpg" />
+    <link rel="canonical" href="https://openseo-lite-blush.vercel.app/" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "OpenSEO-Lite",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Any",
+        "description": "Agent-native SEO toolkit with SERP search, page audit, site audit, and AI visibility checks over MCP for Claude, Cursor, and Hermes.",
+        "url": "https://openseo-lite-blush.vercel.app/",
+        "author": {
+          "@type": "Organization",
+          "name": "Naga Codex",
+          "url": "https://www.nagacodex.cloud/"
+        },
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Cabinet+Grotesk:wght@700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   </head>
   <body>
     <div id="root"></div>
+    <!-- Crawlable fallback: page_audit promotes <noscript> into indexable markup for SPA shells. -->
+    <noscript>
+      <main>
+        <h1>OpenSEO-Lite — MCP SEO tools for Claude, Cursor &amp; Hermes</h1>
+        <p>
+          OpenSEO-Lite is an agent-native SEO toolkit that gives language models real eyes on the live web.
+          Run SERP search, on-page audits, full site audits, and AI visibility checks through the Model Context Protocol
+          without Docker, without a database, and without a heavyweight CMS. Install with pip, start the MCP server,
+          and connect Claude Desktop, Cursor, Hermes, or any FastMCP-compatible client.
+        </p>
+        <h2>What you can audit in one pass</h2>
+        <p>
+          The site audit skill fetches a public URL, scores technical SEO health out of 100, and returns prioritized fixes.
+          It checks title tags, meta descriptions, heading structure, word count, internal and external links, image alt text,
+          and heuristic Core Web Vitals estimates. Export results as JSON, Markdown, or plain text for client delivery.
+          Page audit digs into a single URL. SERP search probes live result pages for a keyword and location.
+          AI visibility estimates whether answer engines mention your brand and cite your domain.
+        </p>
+        <h2>Built for agents, not dashboards</h2>
+        <p>
+          Most SEO platforms bury insights behind logins and credit systems. OpenSEO-Lite is designed for agent workflows:
+          structured JSON out, clear recommendations in plain language, and optional LLM summaries when you supply an
+          OpenRouter, NVIDIA NIM, or OpenAI key. Use free NIM endpoints such as Google Gemma 4 31B or Nemotron Lightning
+          for executive summaries, or keep the deterministic rule-based advisor when no key is set.
+        </p>
+        <h2>Get started</h2>
+        <p>
+          Clone the repository, install Python requirements, and run the MCP server locally. Or open the web playground
+          to paste a URL and run a site audit in the browser. Connect guides cover Claude, Cursor, Hermes, Grok, and
+          NVIDIA NIM setup. Security defaults include SSRF blocking for private networks and client-side API key storage
+          that never writes secrets to a third-party database.
+        </p>
+        <nav aria-label="Primary">
+          <ul>
+            <li><a href="/">Home &amp; tools playground</a></li>
+            <li><a href="/?tab=connect">Connect your AI agent</a></li>
+            <li><a href="/?tab=docs">Setup guide &amp; FAQ</a></li>
+            <li><a href="/?tab=free_keys">Free API keys &amp; model presets</a></li>
+            <li><a href="/?tab=agent_prompts">Agent prompt templates</a></li>
+            <li><a href="/?tab=policy">Security &amp; privacy policy</a></li>
+          </ul>
+        </nav>
+        <p>
+          OpenSEO-Lite is designed by <a href="https://www.nagacodex.cloud/">Naga Codex</a>.
+          Source code and issues live on
+          <a href="https://github.com/Nagacash/-OpenSEO-Lite">GitHub</a>.
+        </p>
+      </main>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
