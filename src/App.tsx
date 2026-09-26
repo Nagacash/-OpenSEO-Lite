@@ -801,7 +801,17 @@ export default function App() {
                                 AI Strategic Advice
                               </span>
                               <span className="text-[11px] text-slate-500">
-                                {customApiKey ? `Powered by ${customProvider.toUpperCase()}` : 'Default SEO Expert'}
+                                {siteAuditResult.ai_summary_source === 'nvidia'
+                                  ? `NVIDIA${siteAuditResult.ai_summary_model ? ` · ${siteAuditResult.ai_summary_model}` : ''}`
+                                  : siteAuditResult.ai_summary_source === 'openrouter'
+                                  ? 'OpenRouter'
+                                  : siteAuditResult.ai_summary_source === 'openai'
+                                  ? 'OpenAI'
+                                  : siteAuditResult.ai_summary_source === 'gemini'
+                                  ? 'Gemini'
+                                  : customApiKey
+                                  ? `${customProvider.toUpperCase()} unavailable · rule-based`
+                                  : 'Rule-based summary'}
                               </span>
                             </div>
                             <div className="text-xs text-slate-200 mt-2 whitespace-pre-line leading-relaxed font-sans">
@@ -883,14 +893,14 @@ export default function App() {
                             <div>
                               <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5 uppercase tracking-wider">
                                 <Zap className="w-3.5 h-3.5" />
-                                Suggested Topics (heuristic — not live ranks)
+                                Content ideas (heuristic)
                               </span>
                               <p className="text-[11px] text-slate-400 mt-0.5">
-                                Inferred from title/headings for brainstorming — not verified SERP positions #11–20.
+                                Brainstorm phrases from the title/H1 — not live rankings. Use Inspect SERP to validate.
                               </p>
                             </div>
                             <span className="text-[10px] font-bold text-slate-950 bg-emerald-400 px-2 py-0.5 rounded-full shrink-0">
-                              Heuristic
+                              Not live ranks
                             </span>
                           </div>
 
@@ -903,8 +913,8 @@ export default function App() {
                                 <div className="space-y-0.5">
                                   <div className="flex items-center gap-2">
                                     <span className="font-semibold text-xs text-white">{kw.keyword}</span>
-                                    <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-400/20 text-amber-300 border border-amber-400/30">
-                                      Est. #{kw.estimated_position}
+                                    <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-400/15 text-slate-300 border border-white/10">
+                                      Idea {kIdx + 1}
                                     </span>
                                   </div>
                                   <p className="text-[11px] text-slate-400">{kw.opportunity}</p>

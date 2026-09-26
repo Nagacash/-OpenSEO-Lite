@@ -590,6 +590,9 @@ interface SiteAuditResult {
   suggested_topics?: StrikingDistanceKeyword[];
   issues: CategorizedIssue[];
   ai_summary: string;
+  /** Which writer produced ai_summary — UI must not claim NVIDIA when this is fallback. */
+  ai_summary_source: 'nvidia' | 'openrouter' | 'openai' | 'gemini' | 'fallback';
+  ai_summary_model?: string;
 }
 
 interface AiVisibilityResult {
@@ -705,13 +708,62 @@ function classifyIssues(rawIssues: string[]): {
   };
 }
 
+type AiSummarySource = 'nvidia' | 'openrouter' | 'openai' | 'gemini' | 'fallback';
+
+const NVIDIA_EOL_MODELS = new Set([
+  'meta/llama-3.1-70b-instruct',
+  'meta/llama-3.1-8b-instruct',
+  'nvidia/nemotron-4-340b-instruct',
+]);
+
+function buildRuleBasedSummary(
+  url: string,
+  score: number,
+  issues: CategorizedIssue[]
+): string {
+  if (score >= 90 && issues.length === 0) {
+    return `Executive Summary:
+${url} scores ${score}/100 with no technical SEO blockers in this pass. On-page fundamentals look solid — shift effort to topical depth, distribution, and earning third-party mentions.
+
+Prioritized Actions:
+1. [GROWTH] Publish one comparison or FAQ page that targets a real search intent from your niche.
+2. [GROWTH] Earn 2–3 contextual backlinks or directory mentions that cite your canonical domain.
+3. [MONITOR] Re-run this audit monthly and after major deploys to catch regressions early.`;
+  }
+
+  const highs = issues.filter((i) => i.severity === 'high');
+  const meds = issues.filter((i) => i.severity === 'medium');
+  const topIssues = [...highs, ...meds, ...issues.filter((i) => i.severity === 'low')].slice(0, 3);
+
+  let actionsList = '';
+  topIssues.forEach((issue, idx) => {
+    actionsList += `${idx + 1}. [${issue.severity.toUpperCase()}] ${issue.recommendation} (Addresses: ${issue.description})\n`;
+  });
+
+  if (topIssues.length === 0) {
+    actionsList =
+      '1. [GROWTH] Expand one supporting article around your primary product keyword cluster.\n';
+  }
+
+  const tone =
+    score >= 80
+      ? 'Technical foundations are in good shape; prioritize content and authority next.'
+      : 'Addressing high-priority indexability and semantic structure items will provide the fastest path to ranking recovery.';
+
+  return `Executive Summary:
+The technical audit for ${url} produced an overall SEO health score of ${score}/100 with ${issues.length} detected opportunities. ${tone}
+
+Prioritized Actions:
+${actionsList.trim()}`;
+}
+
 async function generateAiSummary(
   url: string,
   score: number,
   pageData: PageAuditResult,
   issues: CategorizedIssue[],
   customKeyConfig?: { provider?: string; apiKey?: string; model?: string }
-): Promise<string> {
+): Promise<{ summary: string; source: AiSummarySource; model?: string }> {
   const prompt = `You are a principal technical SEO consultant analyzing audit data.
 Website URL: ${url}
 Calculated SEO Health Score: ${score}/100
@@ -719,19 +771,20 @@ Page Title: "${pageData.title}"
 Meta Description: "${pageData.meta_description}"
 Word Count: ${pageData.word_count}
 Identified Issues:
-${issues.map((i) => `- [${i.severity.toUpperCase()}] ${i.description} (Recommendation: ${i.recommendation})`).join('\n')}
+${issues.length ? issues.map((i) => `- [${i.severity.toUpperCase()}] ${i.description} (Recommendation: ${i.recommendation})`).join('\n') : '- None — page passed technical checks.'}
 
 Task:
 Write a crisp 2-sentence executive summary of the site's organic visibility status, followed by exactly 3 prioritized, high-impact tactical actions to execute this week.
+If the score is 90+ with no issues, recommend growth actions (content, distribution, links) — do NOT invent technical problems.
 
 Output format:
 Executive Summary:
 [2 sentences]
 
 Prioritized Actions:
-1. [Action 1: Immediate fix + expected SEO impact]
-2. [Action 2: Content/semantic fix + expected SEO impact]
-3. [Action 3: Architecture/authority fix + expected SEO impact]`;
+1. [Action 1: Immediate fix or growth move + expected SEO impact]
+2. [Action 2: Content/semantic fix or growth move + expected SEO impact]
+3. [Action 3: Architecture/authority fix or growth move + expected SEO impact]`;
 
   // Resolve LLM config: UI key first, then server .env
   const envProvider = (process.env.LLM_PROVIDER || '').toLowerCase();
@@ -752,7 +805,7 @@ Prioritized Actions:
           ? 'openai'
           : '');
   const apiKey = customKeyConfig?.apiKey || envApiKey;
-  const model =
+  let model =
     customKeyConfig?.model ||
     process.env.LLM_MODEL ||
     (resolvedProvider === 'nvidia'
@@ -760,6 +813,14 @@ Prioritized Actions:
       : resolvedProvider === 'openrouter'
         ? 'meta-llama/llama-3.3-70b-instruct:free'
         : 'gpt-4o-mini');
+
+  // Remap retired NVIDIA NIM models so saved UI presets don't silently fall back.
+  if (
+    (resolvedProvider === 'nvidia' || apiKey.startsWith('nvapi-')) &&
+    NVIDIA_EOL_MODELS.has(model)
+  ) {
+    model = 'google/gemma-4-31b-it';
+  }
 
   // 1. OpenRouter / NVIDIA NIM / OpenAI via UI key or .env
   if (apiKey) {
@@ -779,6 +840,7 @@ Prioritized Actions:
             max_tokens: 600,
             temperature: 0.3,
           }),
+          signal: AbortSignal.timeout(45000),
         });
         const raw = await response.text();
         if (!response.ok) {
@@ -786,7 +848,11 @@ Prioritized Actions:
         } else {
           const data = JSON.parse(raw);
           if (data.choices && data.choices[0]?.message?.content) {
-            return data.choices[0].message.content.trim();
+            return {
+              summary: data.choices[0].message.content.trim(),
+              source: 'openrouter',
+              model,
+            };
           }
         }
       } else if (resolvedProvider === 'nvidia' || apiKey.startsWith('nvapi-')) {
@@ -810,7 +876,11 @@ Prioritized Actions:
         } else {
           const data = JSON.parse(raw);
           if (data.choices && data.choices[0]?.message?.content) {
-            return data.choices[0].message.content.trim();
+            return {
+              summary: data.choices[0].message.content.trim(),
+              source: 'nvidia',
+              model,
+            };
           }
         }
       } else if (resolvedProvider === 'openai' || apiKey.startsWith('sk-')) {
@@ -826,6 +896,7 @@ Prioritized Actions:
             max_tokens: 600,
             temperature: 0.3,
           }),
+          signal: AbortSignal.timeout(45000),
         });
         const raw = await response.text();
         if (!response.ok) {
@@ -833,7 +904,11 @@ Prioritized Actions:
         } else {
           const data = JSON.parse(raw);
           if (data.choices && data.choices[0]?.message?.content) {
-            return data.choices[0].message.content.trim();
+            return {
+              summary: data.choices[0].message.content.trim(),
+              source: 'openai',
+              model,
+            };
           }
         }
       }
@@ -850,32 +925,65 @@ Prioritized Actions:
         contents: prompt,
       });
       if (response.text) {
-        return response.text.trim();
+        return { summary: response.text.trim(), source: 'gemini', model: 'gemini-3.8-flash' };
       }
     } catch (err) {
       console.warn('Gemini API call failed, using rule-based fallback:', err);
     }
   }
 
-  // 3. High quality rule-based deterministic fallback
-  const highs = issues.filter((i) => i.severity === 'high');
-  const meds = issues.filter((i) => i.severity === 'medium');
-  const topIssues = [...highs, ...meds].slice(0, 3);
+  return {
+    summary: buildRuleBasedSummary(url, score, issues),
+    source: 'fallback',
+  };
+}
 
-  let actionsList = '';
-  topIssues.forEach((issue, idx) => {
-    actionsList += `${idx + 1}. [${issue.severity.toUpperCase()}] ${issue.recommendation} (Addresses: ${issue.description})\n`;
-  });
+/** Build brainstorm topics from title/H1 — never invent fake SERP ranks as facts. */
+function buildSuggestedTopics(
+  pageData: PageAuditResult,
+  score: number
+): StrikingDistanceKeyword[] {
+  const STOP = new Set([
+    'with', 'this', 'that', 'from', 'your', 'what', 'have', 'more', 'page', 'home',
+    'lite', 'tools', 'tool', 'agent', 'agents', 'best', 'free', 'using', 'into',
+    'over', 'than', 'when', 'will', 'just', 'also', 'only', 'site', 'web',
+    'open', 'claude', 'cursor', 'hermes', 'meta', 'for', 'and', 'the',
+  ]);
 
-  if (topIssues.length < 3) {
-    actionsList += `${topIssues.length + 1}. [LOW] Implement Schema.org JSON-LD structured data (WebPage, Organization) for rich snippet eligibility.\n`;
+  const corpus = `${pageData.title} ${pageData.headings.h1.join(' ')} ${pageData.headings.h2.join(' ')}`;
+  const brandMatch = corpus.match(/\bOpenSEO(?:-Lite)?\b/i);
+  const brand = brandMatch ? brandMatch[0].replace(/-Lite/i, '-Lite') : '';
+
+  const tokens = Array.from(
+    new Set(
+      (corpus.match(/\b[A-Za-z][A-Za-z0-9-]{2,}\b/g) || [])
+        .map((w) => w.toLowerCase())
+        .filter((w) => w.length >= 3 && !STOP.has(w))
+    )
+  );
+
+  const seeds: string[] = [];
+  if (brand) {
+    seeds.push(`${brand} MCP setup`);
+    seeds.push(`${brand} vs traditional SEO tools`);
+    seeds.push(`how to audit a site with ${brand}`);
+  }
+  for (const t of tokens) {
+    if (seeds.length >= 3) break;
+    const phrase = `${t} SEO checklist`;
+    if (!seeds.some((s) => s.toLowerCase().includes(t))) seeds.push(phrase);
   }
 
-  return `Executive Summary:
-The technical audit for ${url} produced an overall SEO health score of ${score}/100 with ${issues.length} detected opportunities. Addressing high-priority indexability and semantic structure items will provide the fastest path to ranking recovery.
-
-Prioritized Actions:
-${actionsList.trim()}`;
+  const growth = score >= 90;
+  return seeds.slice(0, 3).map((keyword, idx) => ({
+    keyword,
+    estimated_position: 11 + idx * 3,
+    opportunity: growth
+      ? 'Brainstorm topic only — not a live rank. Useful for a supporting article or FAQ, not a technical fix.'
+      : 'Brainstorm topic only — not a live rank. Validate in SERP before investing content.',
+    source: 'heuristic' as const,
+    estimated: true as const,
+  }));
 }
 
 async function performSiteAudit(
@@ -885,44 +993,8 @@ async function performSiteAudit(
   const pageData = await performPageAudit(targetUrl);
   let { score, categorized } = classifyIssues(pageData.issues);
 
-  // 1. Calculate striking distance keywords (ranks #11-20 / page 2 quick wins)
-  const words = (pageData.title + ' ' + pageData.headings.h1.join(' ') + ' ' + pageData.headings.h2.join(' '))
-    .match(/\b[A-Za-z]{4,}\b/g) || [];
-  const uniqueTerms = Array.from(new Set(words.map((w) => w.toLowerCase()))).filter(
-    (w) => !['with', 'this', 'that', 'from', 'your', 'what', 'have', 'more', 'page', 'home'].includes(w)
-  );
-
-  const strikingKeywords: StrikingDistanceKeyword[] = [];
-  if (uniqueTerms.length >= 1) {
-    strikingKeywords.push({
-      keyword: `${uniqueTerms[0]} strategy guide`,
-      estimated_position: 12,
-      opportunity:
-        'Suggested topic (heuristic). Add 1 homepage internal link and enrich H2 headings.',
-      source: 'heuristic',
-      estimated: true,
-    } as StrikingDistanceKeyword);
-  }
-  if (uniqueTerms.length >= 2) {
-    strikingKeywords.push({
-      keyword: `best ${uniqueTerms[1]} tools`,
-      estimated_position: 14,
-      opportunity:
-        'Suggested topic (heuristic). Add a comparison table and +150 words of editorial depth.',
-      source: 'heuristic',
-      estimated: true,
-    } as StrikingDistanceKeyword);
-  }
-  if (uniqueTerms.length >= 3) {
-    strikingKeywords.push({
-      keyword: `${uniqueTerms[2]} checklist`,
-      estimated_position: 17,
-      opportunity:
-        'Suggested topic (heuristic). Inject FAQ schema (JSON-LD) for rich-result eligibility.',
-      source: 'heuristic',
-      estimated: true,
-    } as StrikingDistanceKeyword);
-  }
+  // 1. Suggested content topics (brainstorm only — not live SERP ranks)
+  const strikingKeywords = buildSuggestedTopics(pageData, score);
 
   // Estimated CWV (heuristic — NOT live Chrome UX Report)
   const approxSize = pageData.word_count * 7;
@@ -963,7 +1035,7 @@ async function performSiteAudit(
     note: 'Estimated from page weight heuristics — not live CrUX field data.',
   };
 
-  const aiSummary = await generateAiSummary(targetUrl, score, pageData, categorized, customKeyConfig);
+  const aiResult = await generateAiSummary(targetUrl, score, pageData, categorized, customKeyConfig);
 
   return {
     url: pageData.url,
@@ -973,7 +1045,9 @@ async function performSiteAudit(
     striking_distance_keywords: strikingKeywords,
     suggested_topics: strikingKeywords,
     issues: categorized,
-    ai_summary: aiSummary,
+    ai_summary: aiResult.summary,
+    ai_summary_source: aiResult.source,
+    ai_summary_model: aiResult.model,
   };
 }
 
