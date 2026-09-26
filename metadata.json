@@ -1,0 +1,6 @@
+{
+  "name": "OpenSEO-Lite Agent",
+  "description": "Minimal SEO automation MCP server and agent toolkit using browser-use and AI.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

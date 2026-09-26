@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "openseo-lite": {
+      "command": "python",
+      "args": [
+        "/absolute/path/to/openseo-lite/mcp_server.py"
+      ],
+      "env": {
+        "LLM_API_KEY": "YOUR_API_KEY",
+        "LLM_PROVIDER": "openai"
+      }
+    }
+  }
+}
