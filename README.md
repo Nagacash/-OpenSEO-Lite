@@ -16,6 +16,28 @@ Instead of heavy enterprise platforms or expensive monthly subscriptions, OpenSE
 
 ---
 
+## Deploy (Vercel)
+
+The web playground (UI + `/api/skills/*`) can deploy to Vercel from this repo.
+
+1. Go to [vercel.com/new](https://vercel.com/new) → Import `Nagacash/-OpenSEO-Lite`
+2. Framework: **Other** (uses `vercel.json`)
+3. Build: `npm run build` · Output: `dist`
+4. Deploy
+
+Optional env vars in Vercel: `GEMINI_API_KEY`, `OPENROUTER_API_KEY`, `LLM_PROVIDER`, `LLM_MODEL`.
+
+**Note:** The Python MCP server (`mcp_server.py`) is for local Claude/Cursor agents — it does not run on Vercel. Use the playground API on Vercel; run MCP locally with `python mcp_server.py`.
+
+Local production check:
+```bash
+npm run build
+NODE_ENV=production npm start
+# open http://localhost:3000
+```
+
+---
+
 ## Quick Start (3-step setup)
 
 ### Step 1: Clone and install dependencies

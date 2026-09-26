@@ -1315,8 +1315,18 @@ app.post('/api/mcp/jsonrpc', async (req: Request, res: Response) => {
 });
 
 // ---------------------------------------------------------------------------
-// Vite Dev Server / Static Hosting
+// Vite Dev Server / Static Hosting / Vercel
 // ---------------------------------------------------------------------------
+function attachProductionStatic() {
+  const distPath = path.join(__dirname, 'dist');
+  if (!fs.existsSync(distPath)) return;
+  app.use(express.static(distPath));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) return next();
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+}
+
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
     const { createServer: createViteServer } = await import('vite');
@@ -1326,11 +1336,7 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path.join(__dirname, 'dist');
-    app.use(express.static(distPath));
-    app.get('*', (_req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
-    });
+    attachProductionStatic();
   }
 
   app.listen(port, '0.0.0.0', () => {
@@ -1338,4 +1344,11 @@ async function startServer() {
   });
 }
 
-startServer();
+// Vercel imports this module as a serverless handler — do not listen there.
+export default app;
+
+if (!process.env.VERCEL) {
+  startServer();
+} else {
+  attachProductionStatic();
+}

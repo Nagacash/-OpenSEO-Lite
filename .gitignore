@@ -3,6 +3,7 @@ build/
 dist/
 coverage/
 .DS_Store
+._*
 *.log
 .env*
 !.env.example
@@ -11,6 +12,7 @@ venv/
 __pycache__/
 *.pyc
 .pytest_cache/
+.vercel/
 audit_report.json
 audit_report.md
 serp_report.json
